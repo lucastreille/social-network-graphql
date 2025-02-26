@@ -19,7 +19,7 @@ interface UpdatePostArgs {
 
 export const postResolvers = {
     Query: {
-        post: async ({ id }: PostByIdArgs, { prisma }: Context): Promise<Post | null> => {
+        post: async ( _: Record<string, never>, { id }: PostByIdArgs, { prisma }: Context): Promise<Post | null> => {
             return await prisma.post.findUnique({
                 where: { id },
                 include: {
@@ -30,7 +30,7 @@ export const postResolvers = {
             });
         },
 
-        posts: async ({ prisma }: Context): Promise<Post[]> => {
+        posts: async ( _: Record<string, never>, { prisma }: Context): Promise<Post[]> => {
             return await prisma.post.findMany({
                 include: {
                     user: true,

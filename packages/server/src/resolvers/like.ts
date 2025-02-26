@@ -12,14 +12,14 @@ interface CreateLikeArgs {
 
 export const likeResolvers = {
     Query: {
-        like: async (_: unknown, { id }: LikePostArgs, { prisma }: Context): Promise<Like | null> => {
+        like: async ( _: Record<string, never>, { id }: LikePostArgs, { prisma }: Context): Promise<Like | null> => {
             return await prisma.like.findUnique({
                 where: { id },
                 include: { user: true, post: true }
             });
         },
 
-        likes: async (_: unknown, __: unknown, { prisma }: Context): Promise<Like[]> => {
+        likes: async (_: Record<string, never>, { prisma }: Context): Promise<Like[]> => {
             return await prisma.like.findMany({
                 include: { user: true, post: true },
                 orderBy: { createdAt: "desc" }
