@@ -51,7 +51,7 @@ export const postResolvers = {
             _: Record<string, never>,
             { title, content }: CreatePostArgs,
             { prisma, user }: Context
-        ): Promise<{ post: Post }> => {
+        ): Promise<String> => {
 
             console.log(user)
 
@@ -70,7 +70,7 @@ export const postResolvers = {
                 }
             });
 
-            return { post };
+            return "post crée avec succés";
         },
 
         updatePost: async (
