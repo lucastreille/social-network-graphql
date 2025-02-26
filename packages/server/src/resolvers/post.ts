@@ -25,7 +25,7 @@ interface UpdatePostArgs extends PostIdArgs {
 type ResolverParent = Record<string, never>;
 
 export const postResolvers = {
-  
+
   Query: {
     post: async (_parent: ResolverParent, args: PostIdArgs, context: Context): Promise<PostWithRelations | null> => {
       const { prisma } = context;
@@ -39,6 +39,7 @@ export const postResolvers = {
           likes: true
         }
       });
+
     },
 
     posts: async (_parent: ResolverParent, _args: Record<string, never>, context: Context): Promise<PostWithRelations[]> => {

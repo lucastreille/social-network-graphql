@@ -4,13 +4,11 @@ import { postResolvers } from './post';
 import { userResolvers } from './user';
 
 export const resolvers = {
-  
   Query: {
     ...userResolvers.Query,
     ...postResolvers.Query,
     ...likeResolvers.Query,
     ...commentResolvers.Query,
-
   },
 
   Mutation: {
@@ -19,5 +17,6 @@ export const resolvers = {
     ...likeResolvers.Mutation,
     ...commentResolvers.Mutation,
   },
+  
   
 };
