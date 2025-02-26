@@ -23,17 +23,18 @@ export const userResolvers = {
 
     Query: {
 
-        me: (_: unknown, __: unknown, { user }: Context): User | null => {
+        me: (_: Record<string, never>, __: unknown, { user }: Context): User | null => {
+            console.log(user);
             return user;
         },
         
-        user: (_: unknown, { id }: UserByIdArgs, { prisma }: Context): Promise<User | null> => {
+        user: (_: Record<string, never>, { id }: UserByIdArgs, { prisma }: Context): Promise<User | null> => {
             return prisma.user.findUnique({
             where: { id },
             });
         },
         
-        users: (_: unknown, __: unknown, { prisma }: Context): Promise<User[]> => {
+        users: (_: Record<string, never>, __: unknown, { prisma }: Context): Promise<User[]> => {
             return prisma.user.findMany();
         },
 
@@ -42,7 +43,7 @@ export const userResolvers = {
     Mutation: {
 
         register: async (
-            _: unknown,
+            _: Record<string, never>,
             { email, password, username }: RegisterArgs,
             { prisma }: Context
         ): Promise<{ token: string; user: User }> => {
@@ -80,7 +81,7 @@ export const userResolvers = {
         },
         
         login: async (
-            _: unknown,
+            _: Record<string, never>,
             { email, password }: LoginArgs,
             { prisma }: Context
         ): Promise<{ token: string; user: User }> => {
@@ -100,10 +101,6 @@ export const userResolvers = {
                 token: generateToken(user),
                 user,
             };
-
         },
-
     },
-
-
 };
