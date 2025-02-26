@@ -1,4 +1,7 @@
 import { gql } from 'apollo-server';
+import { postTypeDefs } from './types/Post';
+import { commentTypeDefs } from './types/Comment';
+import { likeTypeDefs } from './types/Like';
 
 export const typeDefs = gql`
     type User {
@@ -13,34 +16,9 @@ export const typeDefs = gql`
         user: User!
     }
 
-    type Post {
-        id: ID!
-        title: String!
-        content: String!
-        published: Boolean!
-        createdAt: String!
-        updatedAt: String!
-        author: User!
-        comments: [Comment!]!
-        likes: [Like!]!
-        likeCount: Int!
-    }
-
-    type Comment {
-        id: ID!
-        content: String!
-        createdAt: String!
-        updatedAt: String!
-        author: User!
-        post: Post!
-    }
-
-    type Like {
-        id: ID!
-        createdAt: String!
-        user: User!
-        post: Post!
-    }
+    ${postTypeDefs}
+    ${commentTypeDefs}
+    ${likeTypeDefs}
 
     type Query {
         me: User

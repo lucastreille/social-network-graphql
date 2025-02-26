@@ -13,4 +13,42 @@ model User {
   password  String
   username  String   @unique
   createdAt DateTime @default(now())
+
+    // Relations
+  posts     Post[]
+  comments  Comment[]
+  likes     Like[]
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  comments  Comment[]  @relation("PostComments")  // Relation avec Comment sans onDelete
+  likes     Like[]     @relation("PostLikes")     // Relation avec Like sans onDelete
+  likeCount Int      @default(0)  // Vérifie que cette ligne existe
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post     @relation("PostComments", fields: [postId], references: [id], onDelete: Cascade)  // Ajout de onDelete ici
+  postId    String
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post     @relation("PostLikes", fields: [postId], references: [id], onDelete: Cascade)     // Ajout de onDelete ici
+  postId    String
 }
