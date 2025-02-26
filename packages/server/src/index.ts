@@ -1,26 +1,12 @@
-import { ApolloServer, gql } from 'apollo-server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
-const typeDefs = gql`
-  type Query {
-    hello: String
-  }
-`;
-
-const resolvers = {
-  Query: {
-    hello: () => 'Hello World!',
-  },
-};
+import { ApolloServer } from 'apollo-server';
+import { typeDefs } from './schema';
+import { resolvers } from './resolvers';
+import { createContext } from './utils/context';
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: () => {
-    return { prisma };
-  },
+  context: createContext,
 });
 
 server.listen().then(({ url }) => {
