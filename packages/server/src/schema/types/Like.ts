@@ -15,8 +15,4 @@ export const likeTypeDefs = gql`
   type Mutation {
     addLike(postId: ID!): String!
   }
-
-  type MessageResponse {
-    message: String!
-  }
 `;
