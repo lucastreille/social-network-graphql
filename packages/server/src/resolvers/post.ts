@@ -1,8 +1,8 @@
-import { Context } from '../utils/context';
-import { AuthenticationError, UserInputError } from 'apollo-server';
-import { Post as PrismaPost, User, Comment, Like } from '@prisma/client';
+import { Context } from "../utils/context";
+import { AuthenticationError, UserInputError } from "apollo-server";
+import { Post as PrismaPost, User, Comment, Like } from "@prisma/client";
 
-type PostWithRelations = PrismaPost & { 
+type PostWithRelations = PrismaPost & {
   user?: User;
   comments?: Comment[];
   likes?: Like[];
@@ -25,66 +25,74 @@ interface UpdatePostArgs extends PostIdArgs {
 type ResolverParent = Record<string, never>;
 
 export const postResolvers = {
-
   Query: {
-    post: async (_parent: ResolverParent, args: PostIdArgs, context: Context): Promise<PostWithRelations | null> => {
+    post: async (
+      _parent: ResolverParent,
+      args: PostIdArgs,
+      context: Context
+    ): Promise<PostWithRelations | null> => {
       const { prisma } = context;
       const { id } = args;
-      
+
       return await prisma.post.findUnique({
         where: { id },
         include: {
           user: true,
           comments: true,
-          likes: true
-        }
+          likes: true,
+        },
       });
-
     },
 
-    posts: async (_parent: ResolverParent, _args: Record<string, never>, context: Context): Promise<PostWithRelations[]> => {
+    posts: async (
+      _parent: ResolverParent,
+      _args: Record<string, never>,
+      context: Context
+    ): Promise<PostWithRelations[]> => {
       const { prisma } = context;
-      
+
       return await prisma.post.findMany({
         include: {
           user: true,
-          comments: true,
-          likes: true
+          comments: {
+            include: { user: true },
+          },
+          likes: true,
         },
         orderBy: {
-          createdAt: 'desc'
-        }
+          createdAt: "desc",
+        },
       });
     },
   },
 
   Mutation: {
     createPost: async (
-      _parent: ResolverParent, 
-      args: CreatePostArgs, 
+      _parent: ResolverParent,
+      args: CreatePostArgs,
       context: Context
     ): Promise<string> => {
       const { prisma, user } = context;
       const { title, content } = args;
 
       if (!user) {
-        throw new AuthenticationError('You must be logged in to create a post');
+        throw new AuthenticationError("You must be logged in to create a post");
       }
 
       await prisma.post.create({
         data: {
           title,
           content,
-          user: { connect: { id: user.id } } 
-        }
+          user: { connect: { id: user.id } },
+        },
       });
 
       return "post crée avec succés";
     },
 
     updatePost: async (
-      _parent: ResolverParent, 
-      args: UpdatePostArgs, 
+      _parent: ResolverParent,
+      args: UpdatePostArgs,
       context: Context
     ): Promise<string> => {
       const { prisma, user } = context;
@@ -113,7 +121,7 @@ export const postResolvers = {
         data: {
           title: title ?? post.title,
           content: content ?? post.content,
-        }
+        },
       });
 
       if (!updatedPost.id) {
@@ -124,8 +132,8 @@ export const postResolvers = {
     },
 
     deletePost: async (
-      _parent: ResolverParent, 
-      args: PostIdArgs, 
+      _parent: ResolverParent,
+      args: PostIdArgs,
       context: Context
     ): Promise<string> => {
       const { prisma, user } = context;
@@ -136,11 +144,11 @@ export const postResolvers = {
       }
 
       const post = await prisma.post.findUnique({ where: { id } });
-      
+
       if (!post) {
         throw new UserInputError("Post not found");
       }
-      
+
       const postUserId = post.userId;
 
       if (postUserId !== user.id) {
@@ -150,41 +158,53 @@ export const postResolvers = {
       await prisma.post.delete({ where: { id } });
 
       return "Post deleted successfully";
-    }
+    },
   },
 
   // Résolveurs de type pour Post
   Post: {
-    comments: (parent: PostWithRelations, _args: Record<string, never>, { prisma }: Context): Promise<Comment[]> => {
+    comments: (
+      parent: PostWithRelations,
+      _args: Record<string, never>,
+      { prisma }: Context
+    ): Promise<Comment[]> => {
       // Si les commentaires sont déjà inclus via l'include de Prisma
       if (parent.comments) {
         return Promise.resolve(parent.comments);
       }
-      
+
       // Sinon, chargez-les
-      return prisma.comment.findMany({ 
-        where: { postId: parent.id } 
-      });
-    },
-    
-    likes: (parent: PostWithRelations, _args: Record<string, never>, { prisma }: Context): Promise<Like[]> => {
-      if (parent.likes) {
-        return Promise.resolve(parent.likes);
-      }
-      
-      return prisma.like.findMany({ 
-        where: { postId: parent.id } 
+      return prisma.comment.findMany({
+        where: { postId: parent.id },
       });
     },
 
-    user: (parent: PostWithRelations, _args: Record<string, never>, { prisma }: Context): Promise<User | null> => {
+    likes: (
+      parent: PostWithRelations,
+      _args: Record<string, never>,
+      { prisma }: Context
+    ): Promise<Like[]> => {
+      if (parent.likes) {
+        return Promise.resolve(parent.likes);
+      }
+
+      return prisma.like.findMany({
+        where: { postId: parent.id },
+      });
+    },
+
+    user: (
+      parent: PostWithRelations,
+      _args: Record<string, never>,
+      { prisma }: Context
+    ): Promise<User | null> => {
       if (parent.user) {
         return Promise.resolve(parent.user);
       }
-      
-      return prisma.user.findUnique({ 
-        where: { id: parent.userId } 
+
+      return prisma.user.findUnique({
+        where: { id: parent.userId },
       });
-    }
-  }
+    },
+  },
 };
