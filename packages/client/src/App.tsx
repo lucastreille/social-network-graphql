@@ -1,22 +1,31 @@
-import { useState } from 'react'
-import './App.css'
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
+import Home from "./pages/Home";
+import Feed from "./pages/Feed";
+import CreatePost from "./pages/CreatePost";
+import EditPost from "./pages/EditPost.tsx";
+
+import Navbar from "./components/layout/Navbar";
+
+import "./App.css";
+import "./styles/navbar.css";
+import "./styles/home.css";
+import "./styles/feed.css";
+import "./styles/post.css";
+import "./styles/createpost.css";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <h1>Social Network GraphQL</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Frontend is working!
-        </p>
-      </div>
-    </>
-  )
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/feed" element={<Feed />} />
+        <Route path="/create" element={<CreatePost />} />
+        <Route path="/edit" element={<EditPost />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
