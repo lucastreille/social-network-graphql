@@ -5,12 +5,15 @@ import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { LoginMutation, LoginMutationVariables } from "../generated/graphql";
 import "../styles/Auth.css";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../redux/authSlice";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [loginMutation, { loading, error }] = useMutation<
     LoginMutation,
@@ -24,7 +27,14 @@ const Login = () => {
 
       if (response.data?.login.token) {
         login(response.data.login.token, response.data.login.user);
-        navigate("/profile");
+        dispatch(
+          setCredentials({
+            token: response.data.login.token,
+            user: response.data.login.user,
+          })
+        );
+
+        navigate("/");
       }
     } catch (err) {
       console.error("Erreur de connexion:", err);

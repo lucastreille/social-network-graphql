@@ -15,6 +15,7 @@ export const GET_POSTS = gql`
         id
         content
         user {
+          id
           username
         }
       }

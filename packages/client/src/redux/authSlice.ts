@@ -4,7 +4,7 @@ interface User {
   id: string;
   email: string;
   username: string;
-  like: [];
+  like?: [];
 }
 
 interface AuthState {
@@ -26,16 +26,10 @@ export const authSlice = createSlice({
       action: PayloadAction<{
         token: string;
         user: User;
-        email: string;
-        username: string;
-        id: string;
       }>
     ) => {
       state.token = action.payload.token;
       state.user = action.payload.user;
-      state.user.email = action.payload.user.email;
-      state.user.username = action.payload.user.username;
-      state.user.id = action.payload.user.id;
     },
     logout: (state) => {
       state.token = null;

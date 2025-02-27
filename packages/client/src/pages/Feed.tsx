@@ -2,14 +2,14 @@ import { useQuery, useMutation } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { GET_POSTS, CREATE_POST } from "../graphql/mutations/posts";
 import { ADD_LIKE } from "../graphql/mutations/likes";
-import { CREATE_COMMENT } from "../graphql/mutations/comments";
+import { CREATE_COMMENT } from "../graphql/mutations/comment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getUser } from "../redux/authSlice";
-import { GET_LIKES } from "../graphql/queries/posts";
+import { GET_LIKES } from "../graphql/mutations/likes";
 
 import "../styles/Feed.css";
 
@@ -69,11 +69,15 @@ const Feed = () => {
   const navigate = useNavigate();
   const user = useSelector(getUser);
 
+  console.log("user", user);
+
   const { loading, error, data, refetch } = useQuery(GET_POSTS);
   const { data: likesData } = useQuery<LikesQueryData>(GET_LIKES);
   const [createPost] = useMutation(CREATE_POST);
   const [addLike] = useMutation(ADD_LIKE);
   const [createComment] = useMutation(CREATE_COMMENT);
+
+  console.log("data", data);
 
   useEffect(() => {
     if (data && data.posts) setPostsState(data.posts);
@@ -109,7 +113,11 @@ const Feed = () => {
     if (!commentTexts[postId]?.trim()) return;
     try {
       await createComment({
-        variables: { postId, content: commentTexts[postId] },
+        variables: {
+          postId,
+          content: commentTexts[postId],
+          userId: user?.id,
+        },
       });
       setCommentTexts({ ...commentTexts, [postId]: "" });
       refetch();
@@ -214,8 +222,12 @@ const Feed = () => {
                   {post.comments.map((comment) => (
                     <div key={comment.id} style={{ marginBottom: "6px" }}>
                       <strong>
-                        {comment.user?.username || "Utilisateur inconnu"}:
-                      </strong>{" "}
+                        {comment.user && comment.user.username
+                          ? comment.user.username
+                          : user?.username || "Utilisateur inconnu"}
+                        :
+                      </strong>
+
                       {comment.content}
                     </div>
                   ))}

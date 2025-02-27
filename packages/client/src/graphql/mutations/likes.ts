@@ -5,3 +5,16 @@ export const ADD_LIKE = gql`
     addLike(postId: $postId)
   }
 `;
+
+export const GET_LIKES = gql`
+  query Likes {
+    likes {
+      user {
+        id
+      }
+      post {
+        id
+      }
+    }
+  }
+`;
