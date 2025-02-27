@@ -5,9 +5,3 @@ export const ADD_LIKE = gql`
     addLike(postId: $postId)
   }
 `;
-
-export const ADD_DISLIKE = gql`
-  mutation AddDislike($postId: ID!) {
-    addDislike(postId: $postId)
-  }
-`;

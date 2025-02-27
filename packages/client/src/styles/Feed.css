@@ -38,21 +38,10 @@
   font-weight: 600;
 }
 
-.profileUsername {
-  color: #888;
-  font-size: 14px;
-}
-
 .menu ul {
   list-style: none;
   padding: 0;
   margin: 0;
-}
-
-.menu li {
-  margin: 12px 0;
-  cursor: pointer;
-  font-size: 15px;
 }
 
 .deconnexion {
@@ -100,6 +89,11 @@
   font-size: 14px;
 }
 
+.sortTab.active {
+  background: grey;
+  color: #fff;
+}
+
 .postList {
   list-style: none;
   padding: 0;
@@ -110,25 +104,18 @@
 }
 
 .postItem {
-  background: #fafafa;
   border-radius: 12px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  color: #333;
 }
 
 .postUserInfo {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.postAvatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
 }
 
 .postUserName {
@@ -149,51 +136,19 @@
 .postContent {
   font-size: 14px;
   line-height: 1.5;
-  color: #333;
-}
-
-.postActions {
-  display: flex;
-  gap: 16px;
-  font-size: 14px;
-  color: #888;
 }
 
 .postAction-line {
   display: flex;
   gap: 10px;
   cursor: pointer;
+  transition: color 0.3s ease;
 }
 
 .postAction-line.liked {
   color: red;
 }
 
-.shareSomething {
-  display: flex;
-  gap: 8px;
-  margin-top: 24px;
-}
-
-.shareSomething input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-}
-
-.shareSomething button {
-  padding: 10px 16px;
-  background: #0072ff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-/* Right sidebar now contains the create post section */
 .rightSidebar {
   background: #fff;
   border-radius: 16px;

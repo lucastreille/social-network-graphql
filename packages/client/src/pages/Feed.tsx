@@ -1,14 +1,16 @@
 import { useQuery, useMutation } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { GET_POSTS, CREATE_POST } from "../graphql/mutations/posts";
-import { ADD_LIKE, ADD_DISLIKE } from "../graphql/mutations/likes";
+import { ADD_LIKE } from "../graphql/mutations/likes";
 import { CREATE_COMMENT } from "../graphql/mutations/comments";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart, faThumbsDown } from "@fortawesome/free-solid-svg-icons";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getUser } from "../redux/authSlice";
+import { GET_LIKES } from "../graphql/queries/posts";
+
 import "../styles/Feed.css";
 
 interface CommentAuthor {
@@ -31,11 +33,28 @@ interface Post {
   title: string;
   content: string;
   likeCount?: number;
-  dislikeCount?: number;
   createdAt: string;
   user: PostUser;
   comments: Comment[];
 }
+
+interface LikeData {
+  user: { id: string };
+  post: { id: string };
+}
+
+interface LikesQueryData {
+  likes: LikeData[];
+}
+
+const getColorForUser = (username: string): string => {
+  let hash = 0;
+  for (let i = 0; i < username.length; i++) {
+    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 70%, 95%)`;
+};
 
 const Feed = () => {
   const [posts, setPostsState] = useState<Post[]>([]);
@@ -51,15 +70,13 @@ const Feed = () => {
   const user = useSelector(getUser);
 
   const { loading, error, data, refetch } = useQuery(GET_POSTS);
+  const { data: likesData } = useQuery<LikesQueryData>(GET_LIKES);
   const [createPost] = useMutation(CREATE_POST);
   const [addLike] = useMutation(ADD_LIKE);
-  const [addDislike] = useMutation(ADD_DISLIKE);
   const [createComment] = useMutation(CREATE_COMMENT);
 
   useEffect(() => {
-    if (data && data.posts) {
-      setPostsState(data.posts);
-    }
+    if (data && data.posts) setPostsState(data.posts);
   }, [data]);
 
   if (loading) return <p>Chargement...</p>;
@@ -82,15 +99,6 @@ const Feed = () => {
   const handleLike = async (postId: string) => {
     try {
       await addLike({ variables: { postId } });
-      refetch();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleDislike = async (postId: string) => {
-    try {
-      await addDislike({ variables: { postId } });
       refetch();
     } catch (err) {
       console.error(err);
@@ -131,17 +139,10 @@ const Feed = () => {
           <div className="profileName">@{user ? user.username : "Guest"}</div>
         </div>
         <nav className="menu">
-          <ul>
-            <li>News Feed</li>
-            <li>Messages</li>
-            <li>Friends</li>
-            <li>Groups</li>
-            <li>Settings</li>
-          </ul>
+          <button className="deconnexion" onClick={handleLogout}>
+            Deconnexion
+          </button>
         </nav>
-        <button className="deconnexion" onClick={handleLogout}>
-          Deconnexion
-        </button>
       </aside>
 
       <main className="mainFeed">
@@ -158,81 +159,90 @@ const Feed = () => {
         </div>
 
         <ul className="postList">
-          {sortedPosts.map((post) => (
-            <li className="postItem" key={post.id}>
-              <div className="postUserInfo">
-                <img
-                  src={post.user.avatar || "avatarProfile2.jpg"}
-                  alt="Profile"
-                  className="profileImage"
-                />
-                <div>
-                  <div className="postUserName">
-                    {post.user.username || "Utilisateur inconnu"}
-                  </div>
-                  <div className="postTime">
-                    {new Date(post.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+          {sortedPosts.map((post) => {
+            // Pour chaque post, on récupère les IDs des utilisateurs ayant liké
+            const likeUserIds =
+              likesData?.likes
+                .filter((like) => String(like.post.id) === String(post.id))
+                .map((like) => String(like.user.id)) || [];
+            // Si l'ID du user connecté est dans la liste, on met le cœur en rouge
+            const likedByCurrentUser = likeUserIds.includes(String(user?.id));
+            return (
+              <li
+                className="postItem"
+                key={post.id}
+                style={{ background: getColorForUser(post.user.username) }}
+              >
+                <div className="postUserInfo">
+                  <img
+                    src={post.user.avatar || "avatarProfile2.jpg"}
+                    alt="Profile"
+                    className="profileImage"
+                  />
+                  <div>
+                    <div className="postUserName">
+                      {post.user.username || "Utilisateur inconnu"}
+                    </div>
+                    <div className="postTime">
+                      {new Date(
+                        Number(post.createdAt) * 1000
+                      ).toLocaleTimeString([], {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="postTitle">{post.title}</div>
-              <div className="postContent">{post.content}</div>
-              <div className="postActions">
-                <div
-                  className="postAction-line"
-                  onClick={() => handleLike(post.id)}
-                >
-                  <FontAwesomeIcon icon={faHeart} />
-                  {post.likeCount ?? 0}
-                </div>
-                <div
-                  className="postAction-line"
-                  onClick={() => handleDislike(post.id)}
-                >
-                  <FontAwesomeIcon icon={faThumbsDown} />
-                  {post.dislikeCount ?? 0}
-                </div>
-                <div>Share</div>
-              </div>
-
-              {/* Display existing comments */}
-              <div style={{ marginTop: "10px" }}>
-                {post.comments.map((comment) => (
-                  <div key={comment.id} style={{ marginBottom: "6px" }}>
-                    <strong>
-                      {comment.user?.username || "Utilisateur inconnu"}:
-                    </strong>{" "}
-                    {comment.content}
+                <div className="postTitle">{post.title}</div>
+                <div className="postContent">{post.content}</div>
+                <div className="postActions">
+                  <div
+                    className={`postAction-line ${
+                      likedByCurrentUser ? "liked" : ""
+                    }`}
+                    onClick={() => handleLike(post.id)}
+                  >
+                    <FontAwesomeIcon icon={faHeart} />
+                    {post.likeCount ?? 0}
                   </div>
-                ))}
-              </div>
-
-              {/* Add a comment */}
-              <div style={{ marginTop: "10px" }}>
-                <textarea
-                  placeholder="Écrire un commentaire..."
-                  value={commentTexts[post.id] || ""}
-                  onChange={(e) =>
-                    setCommentTexts({
-                      ...commentTexts,
-                      [post.id]: e.target.value,
-                    })
-                  }
-                  rows={2}
-                  style={{ width: "100%", resize: "none" }}
-                />
-                <button
-                  style={{ marginTop: "5px" }}
-                  onClick={() => handleAddComment(post.id)}
-                >
-                  Commenter
-                </button>
-              </div>
-            </li>
-          ))}
+                  <div>Share</div>
+                </div>
+                <div style={{ marginTop: "10px" }}>
+                  {post.comments.map((comment) => (
+                    <div key={comment.id} style={{ marginBottom: "6px" }}>
+                      <strong>
+                        {comment.user?.username || "Utilisateur inconnu"}:
+                      </strong>{" "}
+                      {comment.content}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: "10px" }}>
+                  <textarea
+                    placeholder="Écrire un commentaire..."
+                    value={commentTexts[post.id] || ""}
+                    onChange={(e) =>
+                      setCommentTexts({
+                        ...commentTexts,
+                        [post.id]: e.target.value,
+                      })
+                    }
+                    rows={2}
+                    style={{ width: "100%", resize: "none" }}
+                  />
+                  <button
+                    style={{ marginTop: "5px" }}
+                    onClick={() => handleAddComment(post.id)}
+                  >
+                    Commenter
+                  </button>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       </main>
 

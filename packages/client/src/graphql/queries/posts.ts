@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const GET_POSTS = gql`
   query GetPosts {
@@ -31,6 +31,19 @@ export const GET_POST_DETAIL = gql`
           id
           email
         }
+      }
+    }
+  }
+`;
+
+export const GET_LIKES = gql`
+  query Likes {
+    likes {
+      user {
+        id
+      }
+      post {
+        id
       }
     }
   }
