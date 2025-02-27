@@ -1,18 +1,14 @@
-import { useQuery } from '@apollo/client';
-import { GET_ME } from '../graphql/queries/users';
-import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import '../styles/Profile.css';
+import { useQuery } from "@apollo/client";
+import { GET_ME } from "../graphql/queries/users";
+import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { GetMeQuery } from "../generated/graphql";
+import "../styles/Profile.css";
 
 const Profile = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  const { data, loading, error } = useQuery(GET_ME);
-
-if(!user) {
-    navigate('/login');
-    }
+  const { data, loading, error } = useQuery<GetMeQuery>(GET_ME);
 
   if (loading) return <p>Chargement...</p>;
   if (error) return <p>Erreur : {error.message}</p>;
@@ -22,12 +18,9 @@ if(!user) {
   return (
     <div className="profile-container">
       <h2>Profil</h2>
-      <div className="profile-info">
-        <p><strong>Nom d'utilisateur :</strong> {userData.username}</p>
-        <p><strong>Email :</strong> {userData.email}</p>
-        {/* <p><strong>ID :</strong> {userData.id}</p> */}
-      </div>
-      <button className="profile-button" onClick={() => { logout(); navigate('/login'); }}>
+      <p><strong>Nom d'utilisateur :</strong> {userData?.username}</p>
+      <p><strong>Email :</strong> {userData?.email}</p>
+      <button className="profile-button" onClick={() => { logout(); navigate("/login"); }}>
         Se déconnecter
       </button>
     </div>
