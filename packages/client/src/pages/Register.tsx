@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import { useMutation } from '@apollo/client';
-import { REGISTER_MUTATION } from '../graphql/mutations/auth';
-import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import '../styles/Auth.css';
+import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
+import { REGISTER_MUTATION } from "../graphql/mutations/auth";
+import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { RegisterMutation, RegisterMutationVariables } from "../generated/graphql";
+import "../styles/Auth.css";
 
 const Register = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [registerMutation, { loading, error }] = useMutation(REGISTER_MUTATION);
+  const [registerMutation, { loading, error }] = useMutation<RegisterMutation, RegisterMutationVariables>(REGISTER_MUTATION);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,10 +22,10 @@ const Register = () => {
 
       if (response.data?.register.token) {
         login(response.data.register.token, response.data.register.user);
-        navigate('/profile');
+        navigate("/profile");
       }
     } catch (err) {
-      console.error('Erreur lors de l’inscription:', err);
+      console.error("Erreur lors de l’inscription:", err);
     }
   };
 
