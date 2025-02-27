@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@apollo/client";
 import { getToken, setToken, removeToken, getUserId } from "../utils/auth";
+import { useQuery } from "@apollo/client";
 import { GET_ME } from "../graphql/queries/users";
 import { GetMeQuery } from "../generated/graphql";
 
@@ -18,6 +18,11 @@ export const useAuth = () => {
     const userId = getUserId();
 
     if (token && userId) {
+      setUser({
+        id: userId,
+        email: "Chargement...",
+        username: "Chargement...",
+      });
       setUser({ id: userId, username: "Chargement...", email: "" });
     }
   }, []);

@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server';
+import { gql } from "apollo-server";
 
 export const postTypeDefs = gql`
   type Post {
@@ -23,6 +23,4 @@ export const postTypeDefs = gql`
     updatePost(id: ID!, title: String!, content: String!): String!
     deletePost(id: ID!): String!
   }
-
-
 `;

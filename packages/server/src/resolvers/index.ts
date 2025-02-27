@@ -1,7 +1,7 @@
-import { commentResolvers } from './comment';
-import { likeResolvers } from './like';
-import { postResolvers } from './post';
-import { userResolvers } from './user';
+import { commentResolvers } from "./comment";
+import { likeResolvers } from "./like";
+import { postResolvers } from "./post";
+import { userResolvers } from "./user";
 
 export const resolvers = {
   Query: {
@@ -17,6 +17,4 @@ export const resolvers = {
     ...likeResolvers.Mutation,
     ...commentResolvers.Mutation,
   },
-  
-  
 };

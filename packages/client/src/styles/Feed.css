@@ -1,0 +1,200 @@
+.feedContainer {
+  display: grid;
+  grid-template-columns: 250px 1fr 300px;
+  gap: 24px;
+  padding: 24px;
+  background: #dde4f2;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.leftSidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.profileSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.profileImage {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+}
+
+.profileName {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.deconnexion {
+  margin-top: auto;
+  background: #0072ff;
+  color: #fff;
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+}
+
+.mainFeed {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.feedsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.feedsTitle {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.feedsTabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab {
+  padding: 8px 16px;
+  background: #f1f1f1;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.sortTab.active {
+  background: grey;
+  color: #fff;
+}
+
+.postList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.postItem {
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: #333;
+}
+
+.postUserInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.postUserName {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.postTime {
+  font-size: 12px;
+  color: #999;
+}
+
+.postTitle {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.postContent {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.postAction-line {
+  display: flex;
+  gap: 10px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.postAction-line.liked {
+  color: red;
+}
+
+.rightSidebar {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.createPostSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #f9f9f9;
+}
+
+.createPostSection h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.createPostSection form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.createPostSection input,
+.createPostSection textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.createPostSection button {
+  padding: 10px 16px;
+  background: #0072ff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}

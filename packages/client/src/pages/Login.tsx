@@ -5,14 +5,20 @@ import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { LoginMutation, LoginMutationVariables } from "../generated/graphql";
 import "../styles/Auth.css";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../redux/authSlice";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const [loginMutation, { loading, error }] = useMutation<LoginMutation, LoginMutationVariables>(LOGIN_MUTATION);
+  const [loginMutation, { loading, error }] = useMutation<
+    LoginMutation,
+    LoginMutationVariables
+  >(LOGIN_MUTATION);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +27,14 @@ const Login = () => {
 
       if (response.data?.login.token) {
         login(response.data.login.token, response.data.login.user);
-        navigate("/profile");
+        dispatch(
+          setCredentials({
+            token: response.data.login.token,
+            user: response.data.login.user,
+          })
+        );
+
+        navigate("/");
       }
     } catch (err) {
       console.error("Erreur de connexion:", err);
@@ -32,9 +45,21 @@ const Login = () => {
     <div className="auth-container">
       <h2>Connexion</h2>
       <form className="auth-form" onSubmit={handleLogin}>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button type="submit" disabled={loading}>Se connecter</button>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Mot de passe"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button type="submit" disabled={loading}>
+          Se connecter
+        </button>
         {error && <p className="error-message">{error.message}</p>}
       </form>
     </div>

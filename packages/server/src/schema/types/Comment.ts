@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server';
+import { gql } from "apollo-server";
 
 export const commentTypeDefs = gql`
   type Comment {
@@ -6,7 +6,7 @@ export const commentTypeDefs = gql`
     content: String!
     createdAt: String!
     updatedAt: String!
-    user: User!
+    user: User
     post: Post!
   }
 
