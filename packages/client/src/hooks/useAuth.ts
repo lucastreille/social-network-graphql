@@ -14,39 +14,36 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const token = getToken();
     const userId = getUserId();
-
-    if (token && userId) {
-      setUser({
-        id: userId,
-        email: "Chargement...",
-        username: "Chargement...",
-      });
+    if (userId) {
       setUser({ id: userId, username: "Chargement...", email: "" });
     }
   }, []);
 
   const { data } = useQuery<GetMeQuery>(GET_ME, {
-    skip: !user || user.username !== "Chargement...",
+    skip: !!user,
     onCompleted: (data) => {
       if (data?.me) {
-        setUser({
+        const fetchedUser = {
           id: data.me.id,
           username: data.me.username,
           email: data.me.email,
-        });
+        };
+        setUser(fetchedUser);
+        localStorage.setItem("user", JSON.stringify(fetchedUser));
       }
     },
   });
 
   const login = (token: string, userData: User) => {
     setToken(token, userData.id);
+    localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
   };
 
   const logout = () => {
     removeToken();
+    localStorage.removeItem("user");
     setUser(null);
   };
 
