@@ -1,5 +1,6 @@
 import { PrismaClient, User } from '@prisma/client';
 import { verifyToken } from './auth';
+import { Request } from 'express'; 
 
 export interface Context {
   prisma: PrismaClient;
@@ -7,10 +8,13 @@ export interface Context {
   user: User | null;
 }
 
+export interface ContextParams {
+  req: Request;
+}
+
 const prisma = new PrismaClient();
 
-export const createContext = async ({ req }: any): Promise<Context> => {
-
+export const createContext = async ({ req }: ContextParams): Promise<Context> => {
   const context: Context = {
     prisma,
     userId: null,
@@ -21,24 +25,19 @@ export const createContext = async ({ req }: any): Promise<Context> => {
   const token = authHeader.replace('Bearer ', '');
   
   if (token) {
-
     const payload = verifyToken(token);
     if (payload) {
       context.userId = payload.userId;
       
       try {
-        
         context.user = await prisma.user.findUnique({
           where: { id: payload.userId },
         });
-
       } catch (error) {
         console.error('Error fetching user in context:', error);
       }
     }
-
   }
 
   return context;
-
 };
