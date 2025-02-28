@@ -6,7 +6,10 @@ Initialisation du projet Backend du code Social Network GraphQL
 
 Avant de commencer, assurez-vous d'avoir installé les éléments suivants :
 
-- Se placer dans le dossier /package/server pour executer les commande
+- Se déplacer dans le dossier 
+```sh
+cd .\packages\server\
+```
 - [Node.js](https://nodejs.org/) (version 16+ recommandée)
 - [npm](https://www.npmjs.com/)
 - [PostgreSQL](https://www.postgresql.org/) ou une autre base de données supportée par Prisma
