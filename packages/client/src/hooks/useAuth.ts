@@ -20,7 +20,7 @@ export const useAuth = () => {
     }
   }, []);
 
-  const { data } = useQuery<GetMeQuery>(GET_ME, {
+  useQuery<GetMeQuery>(GET_ME, {
     skip: !!user,
     onCompleted: (data) => {
       if (data?.me) {
