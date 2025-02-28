@@ -1,19 +1,23 @@
 import React, { useState } from "react";
+
 import { useMutation } from "@apollo/client";
 import { LOGIN_MUTATION } from "../graphql/mutations/auth";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
 import { LoginMutation, LoginMutationVariables } from "../generated/graphql";
-import "../styles/Auth.css";
-import { useDispatch } from "react-redux";
+
+import { useNavigate } from "react-router-dom";
 import { setCredentials } from "../redux/authSlice";
+import { useDispatch } from "react-redux";
+
+import "../styles/Auth.css";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const [loginMutation, { loading, error }] = useMutation<
     LoginMutation,

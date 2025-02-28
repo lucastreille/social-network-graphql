@@ -1,51 +1,21 @@
-import { useQuery, useMutation } from "@apollo/client";
-import { useEffect, useState } from "react";
-import { GET_POSTS, CREATE_POST } from "../graphql/mutations/posts";
-import { ADD_LIKE } from "../graphql/mutations/likes";
-import { CREATE_COMMENT } from "../graphql/mutations/comment";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "../hooks/useAuth";
+import { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getUser } from "../redux/authSlice";
-import { GET_LIKES } from "../graphql/mutations/likes";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import "../styles/Feed.css";
 
-interface CommentAuthor {
-  username: string;
-}
-
-interface Comment {
-  id: string;
-  content: string;
-  user: CommentAuthor;
-}
-
-interface PostUser {
-  username: string;
-  avatar?: string;
-}
-
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  likeCount?: number;
-  createdAt: string;
-  user: PostUser;
-  comments: Comment[];
-}
-
-interface LikeData {
-  user: { id: string };
-  post: { id: string };
-}
-
-interface LikesQueryData {
-  likes: LikeData[];
-}
+import { useAuth } from "../hooks/useAuth";
+import {
+  useGetPostsQuery,
+  useCreatePostMutation,
+  useAddLikeMutation,
+  useCreate_CommentMutation,
+  useLikesQuery,
+} from "../generated/graphql";
 
 const getColorForUser = (username: string): string => {
   let hash = 0;
@@ -57,31 +27,23 @@ const getColorForUser = (username: string): string => {
 };
 
 const Feed = () => {
-  const [posts, setPostsState] = useState<Post[]>([]);
   const [newPostTitle, setNewPostTitle] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
   const [commentTexts, setCommentTexts] = useState<{
     [postId: string]: string;
   }>({});
   const [sortByLikes, setSortByLikes] = useState(false);
+  const [createPost] = useCreatePostMutation();
+  const [addLike] = useAddLikeMutation();
+  const [createComment] = useCreate_CommentMutation();
 
   const { logout } = useAuth();
+  const { data, loading, error, refetch } = useGetPostsQuery();
+  const { data: likesData } = useLikesQuery();
+
   const navigate = useNavigate();
   const user = useSelector(getUser);
-
-  console.log("user", user);
-
-  const { loading, error, data, refetch } = useQuery(GET_POSTS);
-  const { data: likesData } = useQuery<LikesQueryData>(GET_LIKES);
-  const [createPost] = useMutation(CREATE_POST);
-  const [addLike] = useMutation(ADD_LIKE);
-  const [createComment] = useMutation(CREATE_COMMENT);
-
-  console.log("data", data);
-
-  useEffect(() => {
-    if (data && data.posts) setPostsState(data.posts);
-  }, [data]);
+  const posts = data?.posts ?? [];
 
   if (loading) return <p>Chargement...</p>;
   if (error) return <p>Erreur : {error.message}</p>;
@@ -116,7 +78,7 @@ const Feed = () => {
         variables: {
           postId,
           content: commentTexts[postId],
-          userId: user?.id,
+          userId: user?.id || "",
         },
       });
       setCommentTexts({ ...commentTexts, [postId]: "" });
@@ -136,7 +98,7 @@ const Feed = () => {
   };
 
   const sortedPosts = sortByLikes
-    ? [...posts].sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0))
+    ? [...posts].sort((a, b) => b.likeCount - a.likeCount)
     : posts;
 
   return (
@@ -168,12 +130,10 @@ const Feed = () => {
 
         <ul className="postList">
           {sortedPosts.map((post) => {
-            // Pour chaque post, on récupère les IDs des utilisateurs ayant liké
             const likeUserIds =
               likesData?.likes
                 .filter((like) => String(like.post.id) === String(post.id))
                 .map((like) => String(like.user.id)) || [];
-            // Si l'ID du user connecté est dans la liste, on met le cœur en rouge
             const likedByCurrentUser = likeUserIds.includes(String(user?.id));
             return (
               <li
@@ -183,7 +143,7 @@ const Feed = () => {
               >
                 <div className="postUserInfo">
                   <img
-                    src={post.user.avatar || "avatarProfile2.jpg"}
+                    src={"avatarProfile2.jpg"}
                     alt="Profile"
                     className="profileImage"
                   />
@@ -214,20 +174,24 @@ const Feed = () => {
                     onClick={() => handleLike(post.id)}
                   >
                     <FontAwesomeIcon icon={faHeart} />
-                    {post.likeCount ?? 0}
+                    {post.likeCount}
                   </div>
-                  <div>Share</div>
+                  <div
+                    style={{ cursor: "pointer" }}
+                    onClick={() => alert("SOON")}
+                  >
+                    Share
+                  </div>
                 </div>
                 <div style={{ marginTop: "10px" }}>
-                  {post.comments.map((comment) => (
+                  {(post.comments || []).map((comment) => (
                     <div key={comment.id} style={{ marginBottom: "6px" }}>
                       <strong>
-                        {comment.user && comment.user.username
+                        {comment.user
                           ? comment.user.username
                           : user?.username || "Utilisateur inconnu"}
                         :
                       </strong>
-
                       {comment.content}
                     </div>
                   ))}

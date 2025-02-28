@@ -16,6 +16,6 @@ export const commentTypeDefs = gql`
   }
 
   type Mutation {
-    createComment(postId: ID!, content: String!): Comment!
+    createComment(postId: ID!, content: String!, userId: ID!): Comment
   }
 `;
