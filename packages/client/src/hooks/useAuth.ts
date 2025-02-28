@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { getToken, setToken, removeToken, getUserId } from "../utils/auth";
-import { useQuery } from "@apollo/client";
+import { getToken, setToken, removeToken } from "../utils/auth";
+import { useQuery, useApolloClient } from "@apollo/client";
 import { GET_ME } from "../graphql/queries/users";
 import { GetMeQuery } from "../generated/graphql";
 
@@ -12,16 +12,16 @@ interface User {
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
+  const client = useApolloClient();
 
   useEffect(() => {
-    const userId = getUserId();
-    if (userId) {
-      setUser({ id: userId, username: "Chargement...", email: "" });
-    }
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
   useQuery<GetMeQuery>(GET_ME, {
-    skip: !!user,
+    skip: !getToken(),
+    fetchPolicy: "network-only",
     onCompleted: (data) => {
       if (data?.me) {
         const fetchedUser = {
@@ -45,6 +45,7 @@ export const useAuth = () => {
     removeToken();
     localStorage.removeItem("user");
     setUser(null);
+    client.clearStore();
   };
 
   return { user, login, logout };

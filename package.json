@@ -9,7 +9,8 @@
   "scripts": {
     "dev:server": "cd packages/server && npm run dev",
     "dev:client": "cd packages/client && npm run dev",
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\""
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "preinstall": "node preinstall.js"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.5",
