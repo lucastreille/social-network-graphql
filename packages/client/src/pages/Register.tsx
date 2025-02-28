@@ -34,7 +34,7 @@ const Register = () => {
 
       if (response.data?.register.token) {
         login(response.data.register.token, response.data.register.user);
-        navigate("/profile");
+        navigate("/login");
       }
     } catch (err) {
       console.error("Erreur lors de l’inscription:", err);
