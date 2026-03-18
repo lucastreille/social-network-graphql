@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "../hooks/useAuth";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
-import "../styles/Feed.css";
 
 import {
   useGetPostsQuery,
@@ -12,6 +13,8 @@ import {
   useCreate_CommentMutation,
   useLikesQuery,
 } from "../generated/graphql";
+
+import "../styles/Feed.css";
 
 const getColorForUser = (username: string): string => {
   let hash = 0;
@@ -25,7 +28,9 @@ const getColorForUser = (username: string): string => {
 const Feed = () => {
   const [newPostTitle, setNewPostTitle] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
-  const [commentTexts, setCommentTexts] = useState<{ [postId: string]: string }>({});
+  const [commentTexts, setCommentTexts] = useState<{
+    [postId: string]: string;
+  }>({});
   const [sortByLikes, setSortByLikes] = useState(false);
 
   const [createPost] = useCreatePostMutation();
@@ -36,8 +41,8 @@ const Feed = () => {
   const { data: likesData } = useLikesQuery();
 
   const { user, logout } = useAuth();
-
   const navigate = useNavigate();
+
   const posts = data?.posts ?? [];
 
   if (loading) return <p>Chargement...</p>;
@@ -52,18 +57,15 @@ const Feed = () => {
       setNewPostTitle("");
       setNewPostContent("");
       refetch();
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) {}
   };
 
   const handleLike = async (postId: string) => {
     try {
       await addLike({ variables: { postId } });
       refetch();
-    } catch (err) {
-      console.error(err);
-    }
+      window.location.reload();
+    } catch (err) {}
   };
 
   const handleAddComment = async (postId: string) => {
@@ -78,9 +80,7 @@ const Feed = () => {
       });
       setCommentTexts({ ...commentTexts, [postId]: "" });
       refetch();
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) {}
   };
 
   const handleLogout = () => {
@@ -102,7 +102,7 @@ const Feed = () => {
         <div className="profileSection">
           <img src="avatarProfile.png" alt="Profile" className="profileImage" />
           <div className="profileName">@{user?.username || "Guest"}</div>
-          </div>
+        </div>
         <nav className="menu">
           <button className="deconnexion" onClick={handleLogout}>
             Déconnexion
@@ -114,7 +114,10 @@ const Feed = () => {
         <div className="feedsHeader">
           <div className="feedsTitle">Feeds</div>
           <div className="feedsTabs">
-            <div className={`tab sortTab ${sortByLikes ? "active" : ""}`} onClick={handleSortByLikes}>
+            <div
+              className={`tab sortTab ${sortByLikes ? "active" : ""}`}
+              onClick={handleSortByLikes}
+            >
               Tri par like
             </div>
           </div>
@@ -128,42 +131,79 @@ const Feed = () => {
                 .map((like) => String(like.user.id)) || [];
             const likedByCurrentUser = likeUserIds.includes(String(user?.id));
 
+            const postDate = new Date(Number(post.createdAt));
+            const datePart = postDate.toLocaleDateString("fr-FR", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            });
+            const timePart = postDate.toLocaleTimeString("fr-FR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+
             return (
-              <li className="postItem" key={post.id} style={{ background: getColorForUser(post.user.username) }}>
-                <div className="postUserInfo">
-                  <img src={"avatarProfile2.jpg"} alt="Profile" className="profileImage" />
+              <li
+                className="postItem"
+                key={post.id}
+                style={{ background: getColorForUser(post.user.username) }}
+              >
+                <div className="postHeader">
+                  <img
+                    src="avatarProfile2.jpg"
+                    alt="Profile"
+                    className="postAvatar"
+                  />
                   <div>
-                    <div className="postUserName">{post.user.username || "Utilisateur inconnu"}</div>
+                    <div className="postUserName">
+                      {post.user.username || "Utilisateur inconnu"}
+                    </div>
                     <div className="postTime">
-                      {new Date(Number(post.createdAt) * 1000).toLocaleTimeString([], {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {datePart} {timePart} • Public
                     </div>
                   </div>
                 </div>
-                <div className="postTitle">{post.title}</div>
-                <div className="postContent">{post.content}</div>
+
+                <div className="postBubble">
+                  {post.title && <div className="postTitle">{post.title}</div>}
+                  <div className="postContent">{post.content}</div>
+                </div>
+
                 <div className="postActions">
-                  <div className={`postAction-line ${likedByCurrentUser ? "liked" : ""}`} onClick={() => handleLike(post.id)}>
+                  <div
+                    className={`actionItem ${
+                      likedByCurrentUser ? "liked" : ""
+                    }`}
+                    onClick={() => handleLike(post.id)}
+                  >
                     <FontAwesomeIcon icon={faHeart} />
-                    {post.likeCount}
+                    {post.likeCount} Likes
                   </div>
-                  <div style={{ cursor: "pointer" }} onClick={() => alert("SOON")}>
+                  <div className="actionItem">
+                    {(post.comments || []).length} Comments
+                  </div>
+                  <div className="actionItem" onClick={() => alert("SOON")}>
                     Share
                   </div>
                 </div>
-                <div style={{ marginTop: "10px" }}>
-                  {(post.comments || []).map((comment) => (
-                    <div key={comment.id} style={{ marginBottom: "6px" }}>
-                      <strong>{comment.user ? comment.user.username : "Utilisateur inconnu"} :</strong> {comment.content}
-                    </div>
-                  ))}
+
+                <div className="commentSection">
+                  <div className="commentTitle">Commentaire :</div>
+                  {(post.comments || []).length === 0 ? (
+                    <div className="noComments">Pas de commentaire</div>
+                  ) : (
+                    (post.comments || []).map((comment, index) => (
+                      <div key={comment.id} className="commentItemWrapper">
+                        <div className="commentItem">{comment.content}</div>
+                        {index < (post.comments || []).length - 1 && (
+                          <div className="commentSeparator"></div>
+                        )}
+                      </div>
+                    ))
+                  )}
                 </div>
-                <div style={{ marginTop: "10px" }}>
+
+                <div className="addCommentSection">
                   <textarea
                     placeholder="Écrire un commentaire..."
                     value={commentTexts[post.id] || ""}
@@ -174,9 +214,8 @@ const Feed = () => {
                       })
                     }
                     rows={2}
-                    style={{ width: "100%", resize: "none" }}
                   />
-                  <button style={{ marginTop: "5px" }} onClick={() => handleAddComment(post.id)}>
+                  <button onClick={() => handleAddComment(post.id)}>
                     Commenter
                   </button>
                 </div>
@@ -190,8 +229,19 @@ const Feed = () => {
         <div className="createPostSection">
           <h3>Créer un post</h3>
           <form onSubmit={handleCreatePost}>
-            <input type="text" placeholder="Titre" value={newPostTitle} onChange={(e) => setNewPostTitle(e.target.value)} required />
-            <textarea placeholder="Contenu" value={newPostContent} onChange={(e) => setNewPostContent(e.target.value)} required />
+            <input
+              type="text"
+              placeholder="Titre"
+              value={newPostTitle}
+              onChange={(e) => setNewPostTitle(e.target.value)}
+              required
+            />
+            <textarea
+              placeholder="Contenu"
+              value={newPostContent}
+              onChange={(e) => setNewPostContent(e.target.value)}
+              required
+            />
             <button type="submit">Publier</button>
           </form>
         </div>
